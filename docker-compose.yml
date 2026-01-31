@@ -1,0 +1,16 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: db_agents
+    restart: always
+    environment:
+      POSTGRES_USER: docker_alex_user
+      POSTGRES_PASSWORD: alexh1000
+      POSTGRES_DB: OpsAgents
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data_agents:/var/lib/postgresql/data
+
+volumes:
+  postgres_data_agents:
