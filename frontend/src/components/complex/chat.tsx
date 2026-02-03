@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Send } from "lucide-react"
+import { API_BASE_URL } from "@/lib/config"
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -23,7 +24,7 @@ export default function Chat() {
     setInput("")
 
     try {
-      const response = await fetch("http://localhost:8000/chat/message", {
+      const response = await fetch(`${API_BASE_URL}/chat/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversation_id: 1, content }),
