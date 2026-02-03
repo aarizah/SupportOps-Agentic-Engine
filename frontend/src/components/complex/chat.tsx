@@ -11,6 +11,8 @@ import { Send } from "lucide-react"
 import { API_BASE_URL } from "@/lib/config"
 
 export default function Chat() {
+  console.log('🔧 API_BASE_URL:', API_BASE_URL)
+  
   const [messages, setMessages] = useState([
     { id: 0, text: "¡Hola! ¿En qué puedo ayudarte?", sender: "bot" },
   ])

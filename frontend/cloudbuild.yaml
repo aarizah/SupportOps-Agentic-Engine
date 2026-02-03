@@ -20,6 +20,15 @@ steps:
     id: 'build-frontend'
     waitFor: ['install-dependencies']
 
+  # Limpiar el bucket antes de subir
+  - name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - 'gsutil -m rm -r gs://frontend-agentsupportops-prod/** || true'
+    id: 'clean-gcs'
+    waitFor: ['build-frontend']
+
   # Subir archivos al bucket de Google Cloud Storage con metadatos
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
@@ -33,7 +42,7 @@ steps:
       - 'frontend/out/'
       - 'gs://frontend-agentsupportops-prod/'
     id: 'upload-to-gcs'
-    waitFor: ['build-frontend']
+    waitFor: ['clean-gcs']
 
 options:
   logging: CLOUD_LOGGING_ONLY
