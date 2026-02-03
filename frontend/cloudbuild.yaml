@@ -18,17 +18,6 @@ steps:
     id: 'build-frontend'
     waitFor: ['install-dependencies']
 
-  # Limpiar el bucket antes de subir
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'rm'
-      - '-r'
-      - 'gs://frontend-agentsupportops-prod/**'
-    id: 'clean-gcs'
-    waitFor: ['build-frontend']
-    onFailure: 'CONTINUE'
-
   # Subir archivos al bucket de Google Cloud Storage
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
@@ -38,20 +27,7 @@ steps:
       - 'frontend/out/'
       - 'gs://frontend-agentsupportops-prod/'
     id: 'upload-to-gcs'
-    waitFor: ['clean-gcs']
-
-  # Configurar tipos MIME correctos
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'setmeta'
-      - '-h'
-      - 'Content-Type:text/css'
-      - '-r'
-      - 'gs://frontend-agentsupportops-prod/**.css'
-    id: 'set-css-mime'
-    waitFor: ['upload-to-gcs']
-    onFailure: 'CONTINUE'
+    waitFor: ['build-frontend']
 
   # Configurar cache headers
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -60,9 +36,36 @@ steps:
       - 'setmeta'
       - '-h'
       - 'Cache-Control:public, max-age=3600'
+      - 'Content-Type:text/html'
       - '-r'
-      - 'gs://frontend-agentsupportops-prod/**'
-    id: 'set-cache-headers'
+      - 'gs://frontend-agentsupportops-prod/**.html'
+    id: 'set-html-mime'
+    waitFor: ['upload-to-gcs']
+
+  # Configurar MIME type para CSS
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'setmeta'
+      - '-h'
+      - 'Cache-Control:public, max-age=31536000'
+      - 'Content-Type:text/css'
+      - '-r'
+      - 'gs://frontend-agentsupportops-prod/**.css'
+    id: 'set-css-mime'
+    waitFor: ['set-html-mime']
+
+  # Configurar MIME type para JS
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'setmeta'
+      - '-h'
+      - 'Cache-Control:public, max-age=31536000'
+      - 'Content-Type:application/javascript'
+      - '-r'
+      - 'gs://frontend-agentsupportops-prod/**.js'
+    id: 'set-js-mime'
     waitFor: ['set-css-mime']
 
 options:
