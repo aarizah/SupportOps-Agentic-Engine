@@ -39,7 +39,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = settings.database_url
+    url = settings.alembic_database_url
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -60,7 +60,7 @@ def run_migrations_online() -> None:
 
     """
     from sqlalchemy import create_engine
-    connectable = create_engine(settings.database_url,pool_pre_ping=True)
+    connectable = create_engine(settings.alembic_database_url, pool_pre_ping=True)
 
     with connectable.connect() as connection:
         context.configure(

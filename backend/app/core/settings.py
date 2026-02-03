@@ -5,6 +5,7 @@ ENV = os.getenv("ENV", "staging")
 
 class Settings(BaseSettings):
     database_url: str
+    alembic_database_url: str  # URL directa sin pooler para migraciones
     frontend_url: str
     model_config = SettingsConfigDict(
         env_file=".env",

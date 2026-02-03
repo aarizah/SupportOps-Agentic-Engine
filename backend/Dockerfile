@@ -6,4 +6,4 @@ COPY uv.lock ./
 ENV UV_SYSTEM_PYTHON=1
 RUN uv sync --frozen --no-dev
 COPY . .
-CMD uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}
+CMD uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}
