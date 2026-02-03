@@ -40,7 +40,7 @@ export default function Chat() {
         ...prev,
         { id: Date.now(), text: "No se pudo enviar el mensaje. Intenta de nuevo.", sender: "bot" as const },
       ])
-      console.error("Error enviando mensaje", error)
+      console.error("Error enviando mensaje.", error)
     }
   }
 
