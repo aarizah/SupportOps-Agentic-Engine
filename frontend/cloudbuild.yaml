@@ -18,55 +18,20 @@ steps:
     id: 'build-frontend'
     waitFor: ['install-dependencies']
 
-  # Subir archivos al bucket de Google Cloud Storage
+  # Subir archivos al bucket de Google Cloud Storage con metadatos
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
       - '-m'
-      - 'cp'
+      - '-h'
+      - 'Cache-Control:public, max-age=3600'
+      - 'rsync'
       - '-r'
+      - '-c'
+      - '-d'
       - 'frontend/out/'
       - 'gs://frontend-agentsupportops-prod/'
     id: 'upload-to-gcs'
     waitFor: ['build-frontend']
-
-  # Configurar cache headers
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'setmeta'
-      - '-h'
-      - 'Cache-Control:public, max-age=3600'
-      - 'Content-Type:text/html'
-      - '-r'
-      - 'gs://frontend-agentsupportops-prod/**.html'
-    id: 'set-html-mime'
-    waitFor: ['upload-to-gcs']
-
-  # Configurar MIME type para CSS
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'setmeta'
-      - '-h'
-      - 'Cache-Control:public, max-age=31536000'
-      - 'Content-Type:text/css'
-      - '-r'
-      - 'gs://frontend-agentsupportops-prod/**.css'
-    id: 'set-css-mime'
-    waitFor: ['set-html-mime']
-
-  # Configurar MIME type para JS
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'setmeta'
-      - '-h'
-      - 'Cache-Control:public, max-age=31536000'
-      - 'Content-Type:application/javascript'
-      - '-r'
-      - 'gs://frontend-agentsupportops-prod/**.js'
-    id: 'set-js-mime'
-    waitFor: ['set-css-mime']
 
 options:
   logging: CLOUD_LOGGING_ONLY
