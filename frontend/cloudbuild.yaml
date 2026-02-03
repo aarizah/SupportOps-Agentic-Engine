@@ -16,7 +16,7 @@ steps:
       - 'corepack enable && pnpm run build'
     dir: 'frontend'
     env:
-      - 'BACKEND_URL=https://supportops-agentic-engine-85439275233.us-east1.run.app'
+      - 'NEXT_PUBLIC_API_URL=https://supportops-agentic-engine-85439275233.us-east1.run.app'
     id: 'build-frontend'
     waitFor: ['install-dependencies']
 
