@@ -18,20 +18,42 @@ steps:
     id: 'build-frontend'
     waitFor: ['install-dependencies']
 
+  # Limpiar el bucket antes de subir
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'rm'
+      - '-r'
+      - 'gs://frontend-agentsupportops-prod/**'
+    id: 'clean-gcs'
+    waitFor: ['build-frontend']
+    onFailure: 'CONTINUE'
+
   # Subir archivos al bucket de Google Cloud Storage
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
       - '-m'
-      - 'rsync'
+      - 'cp'
       - '-r'
-      - '-c'
-      - '-d'
       - 'frontend/out/'
       - 'gs://frontend-agentsupportops-prod/'
     id: 'upload-to-gcs'
-    waitFor: ['build-frontend']
+    waitFor: ['clean-gcs']
 
-  # Configurar metadatos para archivos web
+  # Configurar tipos MIME correctos
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'setmeta'
+      - '-h'
+      - 'Content-Type:text/css'
+      - '-r'
+      - 'gs://frontend-agentsupportops-prod/**.css'
+    id: 'set-css-mime'
+    waitFor: ['upload-to-gcs']
+    onFailure: 'CONTINUE'
+
+  # Configurar cache headers
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
       - '-m'
@@ -41,7 +63,7 @@ steps:
       - '-r'
       - 'gs://frontend-agentsupportops-prod/**'
     id: 'set-cache-headers'
-    waitFor: ['upload-to-gcs']
+    waitFor: ['set-css-mime']
 
 options:
   logging: CLOUD_LOGGING_ONLY
